@@ -1,0 +1,25 @@
+{
+  "name": "vortex-21",
+  "version": "1.0.0",
+  "description": "Website for Vortex'21",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/csea-vortex/vortex-21.git"
+  },
+  "author": "CSG'21",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/csea-vortex/vortex-21/issues"
+  },
+  "homepage": "https://github.com/csea-vortex/vortex-21#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.10.7",
+    "nodemon": "^2.0.4"
+  }
+}
