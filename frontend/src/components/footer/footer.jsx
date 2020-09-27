@@ -1,6 +1,5 @@
 import React from 'react';
 import './footer.css';
-import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
@@ -9,30 +8,33 @@ function Footer() {
         <div className='social-media-wrap'>
           <small className="credits">Developed by Vortex CSG </small>
           <div className='social-icons'>
-            <Link
+            <a
               className='social-media-link'
-              to='/'
+              href='https://www.facebook.com/vortex.nitt/'
               target='_blank'
               aria-label='Facebook'
+              rel='noopener noreferrer'
             >
               <i className='fa fa-facebook-f' />
-            </Link>
-            <Link
+            </a>
+            <a
               className='social-media-link'
-              to='/'
+              href='https://www.instagram.com/vortex_nitt/'
               target='_blank'
               aria-label='Instagram'
+              rel='noopener noreferrer'
             >
               <i className='fa fa-instagram' />
-            </Link>
-            <Link
+            </a>
+            <a
               className='social-media-link'
-              to='/'
+              href='https://www.linkedin.com/company/vortex-nit-trichy/'
               target='_blank'
               aria-label='LinkedIn'
+              rel='noopener noreferrer'
             >
               <i className='fa fa-linkedin' />
-            </Link>
+            </a>
           </div>
           </div>
           </section>
