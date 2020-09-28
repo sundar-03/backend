@@ -2,7 +2,10 @@ import React from 'react';
 import './landingPage.css'
 import cseaLogo from '../images/csea-logo.png'
 
-function LandingPage(){
+
+class LandingPage extends React.Component {
+    render() {
+
     return(
         <>
         <div className="home">
@@ -25,6 +28,7 @@ function LandingPage(){
     
     )
         
+}
 }
 
 export default LandingPage;
