@@ -4,9 +4,7 @@ const morgan = require("morgan");
 const router = require('./router');
 const passport = require("passport");
 const bodyParser = require("body-parser");
-const session = require('express-session');
-
-
+const cors = require('cors')
 const app = express();
 
 const setupPasso=port = require('./passport/setup');
@@ -27,6 +25,7 @@ app.use(passport.session());
 app.use(bodyParser.json()) // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true }))
 
+app.use(cors());
 app.use(morgan("dev"));
 
 app.use('/', router);
