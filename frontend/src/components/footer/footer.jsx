@@ -36,6 +36,15 @@ function Footer() {
             >
               <i className='fa fa-linkedin' />
             </a>
+            <a
+              className='social-media-link'
+              href='https://medium.com/bits-bytes-nit-trichy'
+              target='_blank'
+              aria-label='Medium'
+              rel='noopener noreferrer'
+            >
+              <i className='fa fa-medium' />
+            </a>
           </div>
           </div>
           </section>
