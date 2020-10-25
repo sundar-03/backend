@@ -6,7 +6,7 @@ class Login extends React.Component {
         super();
 
         this.state = {
-            email: "",
+            username: "",
             password: "",
         };
     }
@@ -22,7 +22,7 @@ class Login extends React.Component {
     handleSubmit = (e) => {
         e.preventDefault();
         var user = {
-            email: this.state.email,
+            username: this.state.username,
             password: this.state.password,
         };
 
@@ -40,15 +40,15 @@ class Login extends React.Component {
                 <form onSubmit={this.handleSubmit}>
                     <div className="row lmain-rno justify-content-center">
                         <div className="col-md-3">
-                            <label htmlFor="email">
-                                <b>Email Id</b>
+                            <label htmlFor="username">
+                                <b>Username</b>
                             </label>
                         </div>
                         <div className="col-md-3">
                             <input
-                                type="email"
-                                name="email"
-                                id="email"
+                                type="text"
+                                name="username"
+                                id="username"
                                 onChange={this.inputChange}
                                 value={this.state.email}
                                 required
