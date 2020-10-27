@@ -20,17 +20,23 @@ class App extends React.Component {
 
     loginUser = (user) => {
         axios.post("http://localhost:5000/login", user).then((res) => {
-            if(res.status === 200){
+            if(res.data.success){
                 this.setState({ loggedIn: true });
-              };
+            }
+            else{
+                alert(res.data.message);
+            }
         });
     };
 
     registerUser = (user) => {
         axios.post("http://localhost:5000/register", user).then((res) => {
-          if(res.status === 200){
+          if(res.data.success){
             this.setState({ registered: true });
-          };
+          }
+          else{
+            alert(res.data.message);
+          }
         });
     };
 

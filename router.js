@@ -33,11 +33,12 @@ router.post('/login', (req, res) => {
             }else{ 
             passport.authenticate('local', function (err, user, info) { 
                 if(err){ 
-                
+                console.log(err)
                 res.json({success: false, message: 'hi'}) 
                 } else{ 
                 if (! user) { 
-                    res.json({success: false, message: 'username or password incorrect'}) 
+                    console.log("username or password incorrect");
+                    res.json({success: false, message: 'Username or password incorrect'}) 
                 } else{ 
                     req.login(user, function(err){ 
                     if(err){ 
