@@ -52,7 +52,11 @@ app.use(cors());
 app.use(morgan("dev"));
 
 app.use('/', router);
+app.use(express.static('frontend/build'))
 
+app.use(function (req, res) {
+    res.sendFile("/frontend/build/index.html");
+  });
 
 app.listen(process.env.SERVER_PORT,()=>{
     logger.info("Listening on " + process.env.SERVER_PORT);
