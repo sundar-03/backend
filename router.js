@@ -4,9 +4,6 @@ const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const User = require('./models/User');
 
-const secretKey = 'vortex-csg-2021';
-
-
 // Register
 router.post('/register', function(req, res) { 
       
@@ -14,9 +11,10 @@ router.post('/register', function(req, res) {
   
           User.register(newUser, req.body.password, function(err, user) { 
             if (err) { 
-              res.json({success:false, message:"Registration failed. Error: ", err})  
+                logger.error(err)
+              res.status(400).json({success:false, message: err.message})  
             }else{ 
-              res.json({success: true, message: "Registration successful"}) 
+              res.status(201).json({success: true, message: "Registration successful"}) 
             } 
           }); 
 }); 
@@ -26,31 +24,26 @@ router.post('/register', function(req, res) {
 router.post('/login', (req, res) => {
  
         if(!req.body.username){ 
-            res.json({success: false, message: "Username missing"}) 
+            res.status(400).json({success: false, message: "Username missing"}) 
         } else { 
             if(!req.body.password){ 
-            res.json({success: false, message: "Password missing"}) 
+            res.status(400).json({success: false, message: "Password missing"}) 
             }else{ 
             passport.authenticate('local', function (err, user, info) { 
                 if(err){ 
-                console.log(err)
-                res.json({success: false, message: 'hi'}) 
+                res.status(500).json({success: false, message: err.message}) 
                 } else{ 
                 if (! user) { 
-                    console.log("username or password incorrect");
-                    res.json({success: false, message: 'Username or password incorrect'}) 
+                    res.status(401).json({success: false, message: 'Username or password incorrect'}) 
                 } else{ 
                     req.login(user, function(err){ 
                     if(err){ 
-                        console.log("stuck here" + err);
-                        
-                        res.json({success: false, message: err}) 
-                        
+                        res.status(500).json({success: false, message: err.message}) 
                     }else{ 
                         const token = jwt.sign({userId : user._id, 
-                        username:user.username}, secretKey, 
+                        username:user.username}, process.env.JWT_TOKEN, 
                             {expiresIn: '24h'}) 
-                        res.json({success:true, message:"Authentication successful", token: token }); 
+                        res.status(200).json({success:true, message:"Authentication successful", token: token }); 
                     } 
                     }) 
                 } 
