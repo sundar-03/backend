@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const User = require('./models/User');
+const fs = require('fs')
 
 // Register
 router.post('/register', function(req, res) { 
@@ -59,5 +60,18 @@ router.get('/logout', (req, res) => {
     req.logout();
     res.redirect('/');
 });
+
+// Get list of colleges
+router.get('/college_list',async (req, res) => {
+    try{
+
+    
+    const list =  fs.readFileSync("./college_list.txt",{encoding: 'utf-8'}) 
+    res.status(200).json(list.split('\n'))
+    }
+    catch(err){
+        res.status(500).json({'success': false, 'message': err.message})
+    }
+})
 
 module.exports = router;
