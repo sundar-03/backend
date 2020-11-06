@@ -1,10 +1,12 @@
+import Axios from "axios";
 import React from "react";
+import axios from "axios";
 import "./register.css";
+import Autocomplete from '@material-ui/lab/Autocomplete';
 
 class Register extends React.Component {
     constructor() {
         super();
-
         this.state = {
             name: "",
             username: "",
@@ -13,10 +15,18 @@ class Register extends React.Component {
             dept: "",
             mobile: "",
             password: "",
+            otherCollege:"",
             confirmPassword: "",
+            collegeList: ["Others", "National Institute of Technology, Trichy"]
         };
     }
 
+    componentDidMount(){
+        axios.get("http://localhost:5000/college_list").then((res) => {
+                this.setState({collegeList: res.college_list})
+        });   
+    }
+    
     inputChange = (e) => {
         e.preventDefault();
         const { name, value } = e.target;
@@ -25,9 +35,16 @@ class Register extends React.Component {
         });
     };
 
+    collegeChange = (e, values) => {
+        e.preventDefault();
+        this.setState({
+            "college": values,
+        });
+    };
+
     handleSubmit = (e) => {
         e.preventDefault();
-        var newUser = {
+        let newUser = {
             name: this.state.name,
             username: this.state.username,
             email: this.state.email,
@@ -38,6 +55,9 @@ class Register extends React.Component {
             confirmPassword: this.state.confirmPassword,
         };
 
+        if(newUser["college"] === "Others")
+            newUser["college"] = this.state.otherCollege
+        
         this.props.registerUser(newUser);
     };
 
@@ -110,17 +130,43 @@ class Register extends React.Component {
                                 <b>College Name</b>
                             </label>
                         </div>
+
                         <div className="col-md-3">
-                            <input
-                                type="text"
-                                name="college"
-                                id="college"
-                                onChange={this.inputChange}
-                                value={this.state.college}
-                                required
+                            <Autocomplete
+                                options={this.state.collegeList}
+                                onChange={this.collegeChange}
+                                renderInput={(params) => (
+                                    <div ref={params.InputProps.ref}>
+                                        <input name = "college"          
+                                            style={{ width: 200 }}
+                                            type="text" {...params.inputProps} />
+                                    </div>
+                                )}
                             />
                         </div>
                     </div>
+
+                    {(this.state.college == "Others")? 
+                        <div className="row lmain-pass justify-content-center">
+                            <div className="col-md-3">
+                                <label htmlFor="college">
+                                    <b>Enter College Name</b>
+                                </label>
+                            </div>
+
+                            <div className="col-md-3">
+                                <input
+                                    type="text"
+                                    name="otherCollege"
+                                    id="otherCollege"
+                                    onChange={this.inputChange}
+                                    value={this.state.otherCollege}
+                                    required
+                                />
+                            </div>
+                        </div>
+                    :null}
+
 
                     <div className="row lmain-pass justify-content-center">
                         <div className="col-md-3">
