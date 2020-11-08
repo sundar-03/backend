@@ -20,7 +20,7 @@ global.logger = pino({
 	prettyPrint: process.env.ENV === 'DEV',
 });
 
-const setupPassport = require('./passport/setup');
+require('./passport/setup');
 
 function construct_connection_uri(env_dict) {
 	const { DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, DB_AUTHDB } = env_dict;
@@ -43,13 +43,21 @@ mongoose.connect(
 );
 
 // Passport middleware
+app.use(
+	require('express-session')({
+		secret: process.env.SESSION_SECRET,
+		resave: false,
+		saveUninitialized: false,
+	})
+);
+
 app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true }));
-
 app.use(cors());
+
 app.use(morgan('dev'));
 
 app.use('/', router);

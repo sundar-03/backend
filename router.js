@@ -1,87 +1,210 @@
+/* eslint-disable prefer-const */
+/* eslint-disable no-shadow */
+/* eslint-disable no-lonely-if */
+/* eslint-disable eqeqeq */
+/* eslint-disable no-plusplus */
+/* eslint-disable camelcase */
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
+const sgMail = require('@sendgrid/mail');
 const User = require('./models/User');
 
+require('dotenv').config({ path: './env/.env' });
+
+const secretKey = process.env.secretKey;
+
 const router = express.Router();
+const { isLoggedIn, isEligibleForTokenRegeneration } = require('./middleware');
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+const sendVerificationMail = (email, token, res, successMsg) => {
+	const msg = {
+		to: email, // Change to your recipient
+		from: 'vortex@nitt.edu', // Change to your verified sender
+		subject: 'Account verfication',
+		html: `
+            <strong>Click the button to activate you account</strong>
+            <a href="${process.env.DOMAIN}/activate/${token}/">Activate</a>
+        `,
+	};
+	sgMail
+		.send(msg)
+		.then(() => {
+			// console.log('Email sent');
+			res.json({ success: true, message: successMsg });
+		})
+		.catch((err) => {
+			throw err;
+		});
+};
 
 // Register
-router.post('/register', function (req, res) {
-	const newUser = new User({
-		name: req.body.name,
-		username: req.body.username,
-		email: req.body.email,
-		college: req.body.college,
-		department: req.body.dept,
-		mobile: req.body.mobile,
-	});
-
-	User.register(newUser, req.body.password, function (err, user) {
-		if (err) {
-			logger.error(err);
-			res.status(400).json({ success: false, message: err.message });
-		} else {
-			res.status(201).json({
-				success: true,
-				message: 'Registration successful',
+router.post('/register', (req, res) => {
+	(async function () {
+		try {
+			let {
+				username,
+				name,
+				email,
+				college,
+				department,
+				mobile,
+				password,
+				confirm_password,
+			} = req.body;
+			if (password === confirm_password) {
+				const newUser = new User({
+					username,
+					name,
+					email,
+					college,
+					department,
+					mobile,
+				});
+				let user = await User.register(newUser, password);
+				// console.log(user);
+				if (typeof user === 'object' && Object.keys(user) !== 0) {
+					// send an account verification email
+					const token = jwt.sign(
+						{ id: newUser._id },
+						process.env.REGISTER_SECRET,
+						{ expiresIn: '2d' }
+					);
+					user.verification_token = token;
+					await user.save();
+					const successMsg =
+						'Registration successful, Please verify your Email-id by clicking on the link sent to your registerd mail-id.';
+					sendVerificationMail(email, token, res, successMsg);
+				} else throw user;
+			} else {
+				res.json({
+					success: false,
+					message: `Registration failed. Error: `,
+					err: {
+						message: "Passwords didn't match",
+					},
+				});
+			}
+		} catch (err) {
+			res.json({
+				success: false,
+				message: `Registration failed. Error: `,
+				err,
 			});
 		}
-	});
+	})();
+});
+
+// Regenerate Token
+router.post(
+	'/regenrate-token',
+	isLoggedIn,
+	isEligibleForTokenRegeneration,
+	(req, res) => {
+		(async function () {
+			try {
+				const user = req.user;
+				const token = jwt.sign(
+					{ id: user._id },
+					process.env.REGISTER_SECRET,
+					{ expiresIn: '2d' }
+				);
+				user.verification_token = token;
+				await user.save();
+				const successMsg =
+					'Please verify your Email-id by clicking on the link sent to your registerd mail-id.';
+				sendVerificationMail(req.user.email, token, res, successMsg);
+			} catch (err) {
+				res.json({
+					success: false,
+					message: `Registration failed. Error: `,
+					err,
+				});
+			}
+		})();
+	}
+);
+
+// Activate
+router.get('/activate/:token', (req, res) => {
+	(async function () {
+		try {
+			// eslint-disable-next-line prefer-destructuring
+			const token = req.params.token;
+			let decodedToken = await jwt.verify(
+				token,
+				process.env.REGISTER_SECRET
+			);
+			if (decodedToken) {
+				let { id } = decodedToken;
+				let user = await User.findById(id);
+				if (typeof user === 'object' && Object.keys(user) !== 0) {
+					user.is_verified = true;
+					user.verification_token = '';
+					await user.save();
+					res.json({
+						success: true,
+						message:
+							'User Verfication successful, Now you can enroll for the events!',
+					});
+				} else throw user;
+			} else throw decodedToken;
+		} catch (err) {
+			res.json({
+				success: false,
+				message: 'User Verfication failed',
+				err,
+			});
+		}
+	})();
 });
 
 // Login
 router.post('/login', (req, res) => {
-	if (!req.body.username) {
-		res.status(400).json({ success: false, message: 'Username missing' });
-	} else if (!req.body.password) {
-		res.status(400).json({
-			success: false,
-			message: 'Password missing',
-		});
+	const { username, password } = req.body;
+	if (!username) {
+		res.json({ success: false, message: 'Username missing' });
 	} else {
-		passport.authenticate('local', function (err, user, info) {
-			if (err) {
-				res.status(500).json({
-					success: false,
-					message: err.message,
-				});
-			} else if (!user) {
-				res.status(401).json({
-					success: false,
-					message: 'Username or password incorrect',
-				});
-			} else {
-				req.login(user, function (err) {
-					if (err) {
-						res.status(500).json({
+		if (!password) {
+			res.json({ success: false, message: 'Password missing' });
+		} else {
+			passport.authenticate('local', function (err, user, info) {
+				if (err) {
+					res.json({ success: false, message: 'hi' });
+				} else {
+					if (!user) {
+						res.json({
 							success: false,
-							message: err.message,
+							message: 'username or password incorrect',
 						});
 					} else {
-						const token = jwt.sign(
-							{
-								userId: user._id,
-								username: user.username,
-							},
-							process.env.JWT_TOKEN,
-							{ expiresIn: '24h' }
-						);
-						res.status(200).json({
-							success: true,
-							message: 'Authentication successful',
-							token,
+						req.login(user, function (err) {
+							if (err) {
+								// console.log("stuck here" + err);
+								res.json({ success: false, message: err });
+							} else {
+								const token = jwt.sign(
+									{
+										userId: user._id,
+										username: user.username,
+									},
+									secretKey,
+									{ expiresIn: '24h' }
+								);
+								res.json({
+									success: true,
+									message: 'Authentication successful',
+									token,
+								});
+							}
 						});
 					}
-				});
-			}
-		})(req, res);
+				}
+			})(req, res);
+		}
 	}
-});
-
-// Logout
-router.get('/logout', (req, res) => {
-	req.logout();
-	res.redirect('/');
 });
 
 // Get list of colleges
@@ -177,6 +300,12 @@ router.get('/college_list', async (req, res) => {
 	} catch (err) {
 		res.status(500).json({ success: false, message: err.message });
 	}
+});
+
+// Logout
+router.get('/logout', (req, res) => {
+	req.logout();
+	res.redirect('/');
 });
 
 module.exports = router;
