@@ -148,9 +148,8 @@ router.get('/college_list',async (req, res) => {
  obj = JSON.parse(Json_object);
 for(i=1;i<college_list.length;i++)
 obj['college_list'].push(college_list[i]);
-
+res.status(200).json(obj);
 });
-    res.status(200).json(obj);
     }
     catch(err){
         res.status(500).json({'success': false, 'message': err.message})
