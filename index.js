@@ -38,10 +38,11 @@ mongoose.connect(construct_connection_uri(process.env), {useNewUrlParser:true, u
         logger.error(err)
     }
 })
-  
+
 // Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
+
 
 
 
@@ -50,6 +51,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 app.use(cors());
 app.use(morgan("dev"));
+
 
 app.use('/', router);
 app.use(express.static('frontend/build'))
@@ -60,7 +62,5 @@ app.use(function (req, res) {
 
 app.listen(process.env.SERVER_PORT,()=>{
     logger.info("Listening on " + process.env.SERVER_PORT);
+
 });
-
-
-

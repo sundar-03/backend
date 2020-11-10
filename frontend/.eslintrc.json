@@ -1,0 +1,25 @@
+{
+	"extends": [
+		"eslint:recommended",
+		"plugin:react/recommended",
+		"airbnb",
+		"prettier"
+	],
+	"parserOptions": {
+		"ecmaFeatures": {
+			"jsx": true
+		},
+		"ecmaVersion": 11
+	},
+	"plugins": [
+		"react",
+		"prettier"
+	],
+	"rules": {
+		"prettier/prettier":"error",
+		"no-unused-vars":"warn",
+		"func-names":"off",
+		"no-underscore-dangle": ["error", { "allow": ["_id"] }]
+	}
+}
+

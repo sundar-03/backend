@@ -1,9 +1,10 @@
 const express = require('express');
-const router = express.Router();
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const User = require('./models/User');
 const fs = require('fs')
+
+const router = express.Router();
 
 // Register
 router.post('/register', function(req, res) { 
@@ -52,13 +53,12 @@ router.post('/login', (req, res) => {
             })(req, res); 
             } 
         } 
-        
 });
 
 // Logout
 router.get('/logout', (req, res) => {
-    req.logout();
-    res.redirect('/');
+	req.logout();
+	res.redirect('/');
 });
 
 // Get list of colleges
