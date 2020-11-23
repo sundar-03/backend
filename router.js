@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable prefer-const */
 /* eslint-disable no-shadow */
 /* eslint-disable no-lonely-if */
@@ -12,7 +13,7 @@ const User = require('./models/User');
 
 require('dotenv').config({ path: './env/.env' });
 
-const secretKey = process.env.secretKey;
+const { secretKey } = process.env;
 
 const router = express.Router();
 const { isLoggedIn, isEligibleForTokenRegeneration } = require('./middleware');
@@ -105,7 +106,7 @@ router.post(
 	(req, res) => {
 		(async function () {
 			try {
-				const user = req.user;
+				const { user } = req;
 				const token = jwt.sign(
 					{ id: user._id },
 					process.env.REGISTER_SECRET,

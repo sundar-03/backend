@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable camelcase */
 require('dotenv').config({ path: './env/.env' });
 
 const express = require('express');
