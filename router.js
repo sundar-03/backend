@@ -188,9 +188,9 @@ router.post('/login', (req, res) => {
 // Get list of colleges
 let i;
 let j;
-let jsonObject;
+let Json_object;
 let obj; // declaring necessary variables and unique colleges pressent in college list text
-const collegeList = [
+const college_list = [
 	'PSG College of Technology',
 	'Coimbatore Institute of Technology',
 	'Thiagarajar College of Engineering',
@@ -255,24 +255,24 @@ const collegeList = [
 	'Anjalai Ammal Mahalingam Engineering College',
 	'Vetri Vinayaha College of Engineering and Technology',
 ];
-router.get('/collegeList', async (req, res) => {
+router.get('/college_list', async (req, res) => {
 	try {
 		// getting unique college in database
 		User.collection.distinct('college', (error, colleges) => {
-			for (i = 0; i < colleges.length; i += 1) {
-				for (j = 0; j < collegeList.length; j += 1) {
-					if (colleges[i] === collegeList[j]) {
+			for (i = 0; i < colleges.length; i++) {
+				for (j = 0; j < college_list.length; j++) {
+					if (colleges[i] == college_list[j]) {
 						break;
 					}
 				}
-				if (j === collegeList.length) {
-					collegeList.push(colleges[i]);
+				if (j == college_list.length) {
+					college_list.push(colleges[i]);
 				}
 			}
-			jsonObject = '{"collegeList": ["PSG College of Technology"]}';
-			obj = JSON.parse(jsonObject);
-			for (i = 1; i < collegeList.length; i += 1)
-				obj.collegeList.push(collegeList[i]);
+			Json_object = '{"college_list": ["PSG College of Technology"]}';
+			obj = JSON.parse(Json_object);
+			for (i = 1; i < college_list.length; i++)
+				obj.college_list.push(college_list[i]);
 			res.status(200).json(obj);
 		});
 	} catch (err) {
