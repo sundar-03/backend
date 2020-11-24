@@ -1,10 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable prefer-const */
-/* eslint-disable no-shadow */
-/* eslint-disable no-lonely-if */
-/* eslint-disable eqeqeq */
-/* eslint-disable no-plusplus */
-/* eslint-disable camelcase */
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
@@ -45,7 +38,7 @@ const sendVerificationMail = (email, token, res, successMsg) => {
 router.post('/register', (req, res) => {
 	(async function () {
 		try {
-			let {
+			const {
 				username,
 				name,
 				email,
@@ -53,9 +46,9 @@ router.post('/register', (req, res) => {
 				department,
 				mobile,
 				password,
-				confirm_password,
+				confirmPassword,
 			} = req.body;
-			if (password === confirm_password) {
+			if (password === confirmPassword) {
 				const newUser = new User({
 					username,
 					name,
@@ -64,7 +57,7 @@ router.post('/register', (req, res) => {
 					department,
 					mobile,
 				});
-				let user = await User.register(newUser, password);
+				const user = await User.register(newUser, password);
 				// console.log(user);
 				if (typeof user === 'object' && Object.keys(user) !== 0) {
 					// send an account verification email
@@ -73,7 +66,7 @@ router.post('/register', (req, res) => {
 						process.env.REGISTER_SECRET,
 						{ expiresIn: '2d' }
 					);
-					user.verification_token = token;
+					user.verificationToken = token;
 					await user.save();
 					const successMsg =
 						'Registration successful, Please verify your Email-id by clicking on the link sent to your registerd mail-id.';
@@ -112,7 +105,7 @@ router.post(
 					process.env.REGISTER_SECRET,
 					{ expiresIn: '2d' }
 				);
-				user.verification_token = token;
+				user.verificationToken = token;
 				await user.save();
 				const successMsg =
 					'Please verify your Email-id by clicking on the link sent to your registerd mail-id.';
@@ -134,16 +127,16 @@ router.get('/activate/:token', (req, res) => {
 		try {
 			// eslint-disable-next-line prefer-destructuring
 			const token = req.params.token;
-			let decodedToken = await jwt.verify(
+			const decodedToken = await jwt.verify(
 				token,
 				process.env.REGISTER_SECRET
 			);
 			if (decodedToken) {
-				let { id } = decodedToken;
-				let user = await User.findById(id);
+				const { id } = decodedToken;
+				const user = await User.findById(id);
 				if (typeof user === 'object' && Object.keys(user) !== 0) {
-					user.is_verified = true;
-					user.verification_token = '';
+					user.isVerified = true;
+					user.verificationToken = '';
 					await user.save();
 					res.json({
 						success: true,
@@ -167,53 +160,48 @@ router.post('/login', (req, res) => {
 	const { username, password } = req.body;
 	if (!username) {
 		res.json({ success: false, message: 'Username missing' });
+	} else if (!password) {
+		res.json({ success: false, message: 'Password missing' });
 	} else {
-		if (!password) {
-			res.json({ success: false, message: 'Password missing' });
-		} else {
-			passport.authenticate('local', function (err, user, info) {
-				if (err) {
-					res.json({ success: false, message: 'hi' });
-				} else {
-					if (!user) {
-						res.json({
-							success: false,
-							message: 'username or password incorrect',
-						});
+		passport.authenticate('local', function (err, user, _info) {
+			if (err) {
+				res.json({ success: false, message: 'hi' });
+			} else if (!user) {
+				res.json({
+					success: false,
+					message: 'username or password incorrect',
+				});
+			} else {
+				req.login(user, function (err1) {
+					if (err1) {
+						res.json({ success: false, message: err });
 					} else {
-						req.login(user, function (err) {
-							if (err) {
-								// console.log("stuck here" + err);
-								res.json({ success: false, message: err });
-							} else {
-								const token = jwt.sign(
-									{
-										userId: user._id,
-										username: user.username,
-									},
-									secretKey,
-									{ expiresIn: '24h' }
-								);
-								res.json({
-									success: true,
-									message: 'Authentication successful',
-									token,
-								});
-							}
+						const token = jwt.sign(
+							{
+								userId: user._id,
+								username: user.username,
+							},
+							secretKey,
+							{ expiresIn: '24h' }
+						);
+						res.json({
+							success: true,
+							message: 'Authentication successful',
+							token,
 						});
 					}
-				}
-			})(req, res);
-		}
+				});
+			}
+		})(req, res);
 	}
 });
 
 // Get list of colleges
 let i;
 let j;
-let Json_object;
+let jsonObject;
 let obj; // declaring necessary variables and unique colleges pressent in college list text
-const college_list = [
+const collegeList = [
 	'PSG College of Technology',
 	'Coimbatore Institute of Technology',
 	'Thiagarajar College of Engineering',
@@ -278,24 +266,24 @@ const college_list = [
 	'Anjalai Ammal Mahalingam Engineering College',
 	'Vetri Vinayaha College of Engineering and Technology',
 ];
-router.get('/college_list', async (req, res) => {
+router.get('/collegeList', async (req, res) => {
 	try {
 		// getting unique college in database
 		User.collection.distinct('college', (error, colleges) => {
-			for (i = 0; i < colleges.length; i++) {
-				for (j = 0; j < college_list.length; j++) {
-					if (colleges[i] == college_list[j]) {
+			for (i = 0; i < colleges.length; i += 1) {
+				for (j = 0; j < collegeList.length; j += 1) {
+					if (colleges[i] === collegeList[j]) {
 						break;
 					}
 				}
-				if (j == college_list.length) {
-					college_list.push(colleges[i]);
+				if (j === collegeList.length) {
+					collegeList.push(colleges[i]);
 				}
 			}
-			Json_object = '{"college_list": ["PSG College of Technology"]}';
-			obj = JSON.parse(Json_object);
-			for (i = 1; i < college_list.length; i++)
-				obj.college_list.push(college_list[i]);
+			jsonObject = '{"collegeList": ["PSG College of Technology"]}';
+			obj = JSON.parse(jsonObject);
+			for (i = 1; i < collegeList.length; i += 1)
+				obj.collegeList.push(collegeList[i]);
 			res.status(200).json(obj);
 		});
 	} catch (err) {
@@ -304,9 +292,9 @@ router.get('/college_list', async (req, res) => {
 });
 
 // Logout
-router.get('/logout', (req, res) => {
+router.get('/logout', isLoggedIn, (req, res) => {
 	req.logout();
-	res.redirect('/');
+	res.json({ success: true, message: 'Logged out successfully' });
 });
 
 module.exports = router;

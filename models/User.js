@@ -28,11 +28,11 @@ const userSchema = mongoose.Schema({
 		type: Number,
 		required: true,
 	},
-	is_verified: {
+	isVerified: {
 		type: Boolean,
 		default: false,
 	},
-	verification_token: {
+	verificationToken: {
 		type: String,
 		default: '',
 	},

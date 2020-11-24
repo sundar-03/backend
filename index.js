@@ -1,5 +1,3 @@
-/* eslint-disable no-undef */
-/* eslint-disable camelcase */
 require('dotenv').config({ path: './env/.env' });
 
 const express = require('express');
@@ -24,15 +22,15 @@ global.logger = pino({
 
 require('./passport/setup');
 
-function construct_connection_uri(env_dict) {
-	const { DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, DB_AUTHDB } = env_dict;
+function constructConnectionUri(envDict) {
+	const { DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, DB_AUTHDB } = envDict;
 
 	// TODO: If the passwords contain non alphanumeric characters, escape them.
 	return `mongodb://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?authSource=${DB_AUTHDB}`;
 }
 
 mongoose.connect(
-	construct_connection_uri(process.env),
+	constructConnectionUri(process.env),
 	{ useNewUrlParser: true, useUnifiedTopology: true },
 	(err) => {
 		if (!err) {
