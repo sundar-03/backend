@@ -6,8 +6,6 @@ const User = require('./models/User');
 
 require('dotenv').config({ path: './env/.env' });
 
-const { secretKey } = process.env;
-
 const router = express.Router();
 const { isLoggedIn, isEligibleForTokenRegeneration } = require('./middleware');
 
@@ -176,18 +174,9 @@ router.post('/login', (req, res) => {
 					if (err1) {
 						res.json({ success: false, message: err });
 					} else {
-						const token = jwt.sign(
-							{
-								userId: user._id,
-								username: user.username,
-							},
-							secretKey,
-							{ expiresIn: '24h' }
-						);
 						res.json({
 							success: true,
 							message: 'Authentication successful',
-							token,
 						});
 					}
 				});
