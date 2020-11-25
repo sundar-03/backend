@@ -20,17 +20,17 @@ global.logger = pino({
 	prettyPrint: process.env.ENV === 'DEV',
 });
 
-const setupPassport = require('./passport/setup');
+require('./passport/setup');
 
-function construct_connection_uri(env_dict) {
-	const { DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, DB_AUTHDB } = env_dict;
+function constructConnectionUri(envDict) {
+	const { DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, DB_AUTHDB } = envDict;
 
 	// TODO: If the passwords contain non alphanumeric characters, escape them.
 	return `mongodb://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?authSource=${DB_AUTHDB}`;
 }
 
 mongoose.connect(
-	construct_connection_uri(process.env),
+	constructConnectionUri(process.env),
 	{ useNewUrlParser: true, useUnifiedTopology: true },
 	(err) => {
 		if (!err) {
@@ -43,13 +43,21 @@ mongoose.connect(
 );
 
 // Passport middleware
+app.use(
+	require('express-session')({
+		secret: process.env.SESSION_SECRET,
+		resave: false,
+		saveUninitialized: false,
+	})
+);
+
 app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true }));
-
 app.use(cors());
+
 app.use(morgan('dev'));
 
 app.use('/', router);
