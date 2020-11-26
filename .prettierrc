@@ -8,5 +8,5 @@
 	"trailingComma": "es5",
 	"jsxBracketSameLine":true,
 	"arrowParens": "always",
-	"endOfLine":"lf"
+	"endOfLine":"auto"
 }
